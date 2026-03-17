@@ -5,30 +5,44 @@ function init()
 end
 
 function go_to_light()
-    local x = 0
-    local y = 0
+    local maxv = 0
+    local a = 0
+
     for i = 1, #robot.light do
-        x = x + robot.light[i].value * math.cos(robot.light[i].angle)
-        y = y + robot.light[i].value * math.sin(robot.light[i].angle)
+        if robot.light[i].value > maxv then
+            maxv = robot.light[i].value
+            a = robot.light[i].angle
+        end
     end
-    local a = math.atan(y, x)
-    local l = MAX_VELOCITY - 10 * a
-    local r = MAX_VELOCITY + 10 * a
-    return l, r
+
+    if a > 0.1 then
+        return 6, 15  --gira a sinistra 
+    elseif a < -0.1 then
+        return 15, 6 -- gira a destra
+    else
+        return 15, 15  -- va dritto
+    end
 end
 
 function avoid_obstacles(l, r)
-    local x = 0
-    local y = 0
+    local maxv = 0
+    local a = 0
+
     for i = 1, #robot.proximity do
-        x = x + robot.proximity[i].value * math.cos(robot.proximity[i].angle)
-        y = y + robot.proximity[i].value * math.sin(robot.proximity[i].angle)
+        if robot.proximity[i].value > maxv then
+            maxv = robot.proximity[i].value
+            a = robot.proximity[i].angle
+        end
     end
-    if x > 0.1 then
-        local a = math.atan(y, x)
-        l = -8 * a
-        r = 8 * a
+
+    if maxv > 0.2 then
+        if a > 0 then
+            return 15, -5 -- gira a destra
+        else
+            return -5, 15 -- gira a sinistra
+        end
     end
+
     return l, r
 end
 
