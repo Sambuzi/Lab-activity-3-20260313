@@ -1,45 +1,50 @@
 MAX_VELOCITY = 15
 
+TURN = 5
+BACKWARD = -3
+
 function init()
     robot.leds.set_all_colors("green")
 end
 
 function go_to_light()
-    local maxv = 0
-    local a = 0
+    local left = 0
+    local right = 0
 
     for i = 1, #robot.light do
-        if robot.light[i].value > maxv then
-            maxv = robot.light[i].value
-            a = robot.light[i].angle
+        if robot.light[i].angle > 0 then
+            left = left + robot.light[i].value
+        else
+            right = right + robot.light[i].value
         end
     end
-
-    if a > 0.1 then
-        return 6, 15  --gira a sinistra 
-    elseif a < -0.1 then
-        return 15, 6 -- gira a destra
+    
+    if left > right + 0.05 then
+        return TURN, MAX_VELOCITY
+    elseif right > left + 0.05 then
+        return MAX_VELOCITY, TURN
     else
-        return 15, 15  -- va dritto
+        return MAX_VELOCITY, MAX_VELOCITY
     end
 end
 
 function avoid_obstacles(l, r)
-    local maxv = 0
-    local a = 0
+    local left = 0
+    local right = 0
 
-    for i = 1, #robot.proximity do
-        if robot.proximity[i].value > maxv then
-            maxv = robot.proximity[i].value
-            a = robot.proximity[i].angle
-        end
+    for i = 1, 3 do
+        left = left + robot.proximity[i].value
     end
 
-    if maxv > 0.2 then
-        if a > 0 then
-            return 15, -5 -- gira a destra
+    for i = 22, 24 do
+        right = right + robot.proximity[i].value
+    end
+
+    if left + right > 0.2 then
+        if left > right then
+            return MAX_VELOCITY, BACKWARD
         else
-            return -5, 15 -- gira a sinistra
+            return BACKWARD, MAX_VELOCITY
         end
     end
 
@@ -52,6 +57,7 @@ function halt_on_black(l, r)
             return 0, 0
         end
     end
+
     return l, r
 end
 
