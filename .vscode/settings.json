@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [
+        "go_to_light",
+        "init",
+        "robot",
+        "halt_on_black",
+        "step",
+        "reset",
+        "destroy",
+        "avoid_obstacles"
+    ]
+}
